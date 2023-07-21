@@ -1,0 +1,202 @@
+version: '3.4'
+
+services:
+  
+  app-bakend:  
+    build: llm
+    command: sh -c "python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - static:/usr/src/app
+      - ./static-vol:/tmp/static
+    container_name: bakend
+    ports:
+      - "8000:8000"
+        #expose:
+        #- "8000"
+    hostname: app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    #image: app-image
+    networks:
+      - main
+    restart: on-failure
+  app-sd_15_model:  
+    build: sd_15_model
+    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 7000"
+    volumes:
+      - static:/usr/src/app
+      - ./static-vol:/tmp/static
+    container_name: sd_15_model
+    ports:
+      - "7000:7000"
+        #expose:
+        #- "8000"
+    hostname: app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    #image: app-image
+    networks:
+      - main
+    restart: on-failure
+
+  app-oj_model:  
+    build: oj_model
+    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 7001"
+    volumes:
+      - static:/usr/src/app
+      - ./static-vol:/tmp/static
+    container_name: oj_model
+    ports:
+      - "7001:7001"
+        #expose:
+        #- "8000"
+    hostname: app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    #image: app-image
+    networks:
+      - main
+    restart: on-failure
+
+  app-sd_2_model:  
+    build: sd_2_model
+    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 7002"
+    volumes:
+      - static:/usr/src/app
+      - ./static-vol:/tmp/static
+    container_name: sd_2_model
+    ports:
+      - "7002:7002"
+        #expose:
+        #- "8000"
+    hostname: app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    #image: app-image
+    networks:
+      - main
+    restart: on-failure
+
+  app-rv_14_model:  
+    build: rv_14_model
+    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 7003"
+    volumes:
+      - static:/usr/src/app
+      - ./static-vol:/tmp/static
+    container_name: rv_14_model
+    ports:
+      - "7003:7003"
+        #expose:
+        #- "8000"
+    hostname: app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    #image: app-image
+    networks:
+      - main
+    restart: on-failure
+
+  app-dlpr_2_model:  
+    build: dlpr_2_model
+    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 7004"
+    volumes:
+      - static:/usr/src/app
+      - ./static-vol:/tmp/static
+    container_name: dlpr_2_model
+    ports:
+      - "7004:7004"
+        #expose:
+        #- "8000"
+    hostname: app
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    #image: app-image
+    networks:
+      - main
+    restart: on-failure
+
+  app-ui:
+    build: sandboxui
+    command: sh -c "npm start  -- --host 0.0.0.0 -- --port 4200 --disable-host-check"
+    volumes:
+      - .:/usr/src/app
+      # - ./edge-vol:/usr/src/app
+    container_name: llmapp
+    ports:
+      - "4200:4200"
+        #expose:
+        #- "5000"
+    hostname: app
+    #image: app-image
+    networks:
+      - main
+    restart: on-failure
+  
+  rabbitmq3:
+    container_name: "rabbitmq"
+    hostname: "rabbitmq"
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    ports:
+  #   # AMQP protocol port
+    - '5672:5672'
+     # HTTP management UI
+    - '15672:15672'
+   
+    restart: on-failure
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq/
+      - rabbitmq-log:/var/log/rabbitmq
+    networks:
+      - main
+
+
+volumes:
+  static:
+  rabbitmq-data:
+  rabbitmq-log:
+networks:
+  main:
+    external: true
+
+
+
+
+
+
+
+
+
+
